@@ -1,10 +1,57 @@
 package main
 
 import (
-	"strings"
+	"strings", 
+	"fmt"
 )
 
 func main() {
+	moveCounter := 0
+	gameOverCheck := "x"
+	board := createNewBoard()
+	for moveCounter < 100 && gameOverCheck == "x" {
+		printBoard(board)
+		var whiteRawOld string
+		var whiteRawNew string
+		var blackRawOld string
+		var blackRawNew string
+		var whiteOldMove [2]int
+		var whiteNewMove [2]int
+		var blackOldMove [2]int
+		var blackNewMove [2]int
+		fmt.Println("Enter the square for white to move from: ")
+		fmt.Scanln(&whiteRawOld)
+		fmt.Println("Enter the square for white to move to: ")
+		fmt.Scanln(&whiteRawNew)
+		fmt.Println("Enter the square for black to move from: ")
+		fmt.Scanln(&blackRawOld)
+		fmt.Println("Enter the squaere for black to move to: ")
+		fmt.Scanln(&blackRawNew)
+		if validateUserInput(whiteRawNew) && validateUserInput(whiteRawOld) {
+			whiteNewMove = cleanUserInput(whiteRawNew)
+			whiteOldMove = cleanUserInput(whiteRawOld)
+		} else {
+			gameOverCheck := "b"
+			break
+		}
+		if validateUserInput(blackRawNew) && validateUserInput(blackRawOld) {
+			blackNewMove = cleanUserInput(blackRawNew)
+			blackOldMove = cleanUserInput(blackRawOld)
+		} else {
+			gameOverCheck := "w"
+			break
+		} 
+		if !checkValidMove(board, "w", whiteOldMove, whiteNewMove) {
+			gameOverCheck := "b"
+			break
+		} else if !checkValidMove(board, "b", blackOldMove, blackNewMove) {
+			gameOverCheck := "w"
+			break
+		}
+		board = resolveMoves(board, whiteOldMove, whiteNewMove, blackOldMove, blackNewMove)
+		gameOverCheck = gameOverCheck(board)
+		moveCounter++
+	} 
 }
 
 // Creates a new starting board state
@@ -15,6 +62,14 @@ func createNewBoard() [5][5]string {
 	return board
 }
 
+// Prints the board to the terminal
+func printBoard(board [5][5]string) {
+	for i : 0; i < 5; i++ {
+		fmt.Println(board[0][i] + " " + boaboard[1][i] + " " + board[2][i] + " " + board[3][i] + " " + board[4][i])
+	}
+}
+
+// Checks if the users input is in the right format
 func validateUserInput(input string) bool {
 	validNums := "01234"
 	if len(input) != 2 {
@@ -25,6 +80,7 @@ func validateUserInput(input string) bool {
 	return true
 }
 
+// Changes the users input from its raw form to the int array form we need it in
 func cleanUserInput(input string) [2]int {
 	return [2]int{int(input[0]), int(input[1])}
 }
