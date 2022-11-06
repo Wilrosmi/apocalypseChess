@@ -93,6 +93,7 @@ func cleanUserInput(input string) [2]int {
 	return [2]int{first, second}
 }
 
+// Prints the correct message when the game is over
 func printEndMessage(gameOverCheck string) {
 	switch gameOverCheck {
 	case "w":
