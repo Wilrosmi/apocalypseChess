@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -23,6 +25,7 @@ func main() {
 
 // Play against the AI
 func playAI() {
+	rand.Seed(time.Now().UnixNano())
 	moveCounter := 0
 	gameOverCheck := "x"
 	board := createNewBoard()
@@ -45,6 +48,7 @@ func playAI() {
 			break
 		}
 		blackOldMove, blackNewMove := aiMove(board, "b")
+		fmt.Println("ai move: ", blackOldMove, blackNewMove)
 		board = resolveMoves(board, whiteOldMove, whiteNewMove, blackOldMove, blackNewMove)
 		gameOverCheck = checkGameOver(board)
 		moveCounter++
