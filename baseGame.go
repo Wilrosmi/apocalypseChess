@@ -2,11 +2,63 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 )
 
 func main() {
+	var choice string
+	fmt.Println("Press 1 to play the AI. Press 2 to play locally. Anything else will exit the program")
+	fmt.Scanf("%s", &choice)
+	switch choice {
+	case "1":
+		playAI()
+	case "2":
+		playLocally()
+	default:
+		os.Exit(0)
+	}
+}
+
+// Play against the AI
+func playAI() {
+	rand.Seed(time.Now().UnixNano())
+	moveCounter := 0
+	gameOverCheck := "x"
+	board := createNewBoard()
+	fmt.Println("You are playing the white pieces")
+	for moveCounter < 100 && gameOverCheck == "x" {
+		printBoard(board)
+		var whiteRawOld string
+		var whiteRawNew string
+		var whiteOldMove [2]int
+		var whiteNewMove [2]int
+		fmt.Println("Enter the square of the piece you wish to move: ")
+		fmt.Scanln(&whiteRawOld)
+		fmt.Println("Enter the square you wish to move to: ")
+		fmt.Scanln(&whiteRawNew)
+		if validateUserInput(whiteRawNew) && validateUserInput(whiteRawOld) {
+			whiteNewMove = cleanUserInput(whiteRawNew)
+			whiteOldMove = cleanUserInput(whiteRawOld)
+		} else {
+			gameOverCheck = "b"
+			break
+		}
+		blackOldMove, blackNewMove := aiMove(board, "b")
+		fmt.Println("ai move: ", blackOldMove, blackNewMove)
+		board = resolveMoves(board, whiteOldMove, whiteNewMove, blackOldMove, blackNewMove)
+		gameOverCheck = checkGameOver(board)
+		moveCounter++
+	}
+	printEndMessage(gameOverCheck)
+	os.Exit(0)
+}
+
+// Play with two players inputting moves into the terminal
+func playLocally() {
 	moveCounter := 0
 	gameOverCheck := "x"
 	board := createNewBoard()
@@ -59,16 +111,18 @@ func main() {
 
 // Creates a new starting board state
 func createNewBoard() [5][5]string {
-	firstAndLastColumns := [5]string{"w1", "w0", "e", "b0", "b1"}
-	middleColumns := [5]string{"w0", "e", "e", "e", "b0"}
+	firstAndLastColumns := [5]string{"w1", "w0", "ee", "b0", "b1"}
+	middleColumns := [5]string{"w0", "ee", "ee", "ee", "b0"}
 	board := [5][5]string{firstAndLastColumns, middleColumns, middleColumns, middleColumns, firstAndLastColumns}
 	return board
 }
 
 // Prints the board to the terminal
 func printBoard(board [5][5]string) {
-	for i := 0; i < 5; i++ {
-		fmt.Println(board[0][i] + " " + board[1][i] + " " + board[2][i] + " " + board[3][i] + " " + board[4][i])
+	fmt.Println("----------------------")
+	for i := 4; i >= 0; i-- {
+		fmt.Println("||" + board[0][i] + "||" + board[1][i] + "||" + board[2][i] + "||" + board[3][i] + "||" + board[4][i] + "||")
+		fmt.Println("----------------------")
 	}
 }
 
@@ -85,9 +139,12 @@ func validateUserInput(input string) bool {
 
 // Changes the users input from its raw form to the int array form we need it in
 func cleanUserInput(input string) [2]int {
-	return [2]int{int(input[0]), int(input[1])}
+	first, _ := strconv.Atoi(string(input[0]))
+	second, _ := strconv.Atoi(string(input[1]))
+	return [2]int{first, second}
 }
 
+// Prints the correct message when the game is over
 func printEndMessage(gameOverCheck string) {
 	switch gameOverCheck {
 	case "w":
@@ -134,9 +191,13 @@ func canPlayerMoveThatPiece(board [5][5]string, whosTurn string, currentSquare [
 // Checks if the proposed move is possible for a pawn
 func checkPawnMove(board [5][5]string, whosTurn string, currentSquare [2]int, newSquare [2]int) bool {
 	pieceOnSquare := string(board[newSquare[0]][newSquare[1]][0])
-	if newSquare[0] == currentSquare[0] && newSquare[1] == currentSquare[1]+1 && pieceOnSquare == "e" {
+	forwardOrBack := 1
+	if whosTurn == "b" {
+		forwardOrBack *= -1
+	}
+	if newSquare[0] == currentSquare[0] && newSquare[1] == currentSquare[1]+forwardOrBack && pieceOnSquare == "e" {
 		return true
-	} else if (newSquare[0] == currentSquare[0]+1 || newSquare[0] == currentSquare[0]-1) && newSquare[1] == currentSquare[1]+1 && (pieceOnSquare != "e" && pieceOnSquare != whosTurn) {
+	} else if (newSquare[0] == currentSquare[0]+1 || newSquare[0] == currentSquare[0]-1) && newSquare[1] == currentSquare[1]+forwardOrBack && (pieceOnSquare != "e" && pieceOnSquare != whosTurn) {
 		return true
 	} else {
 		return false
@@ -160,7 +221,7 @@ func checkKnightMove(board [5][5]string, whosTurn string, currentSquare [2]int, 
 // Creates the new board given a valid move for each player
 func resolveMoves(board [5][5]string, wOldSquare [2]int, wNewSquare [2]int, bOldSquare [2]int, bNewSquare [2]int) [5][5]string {
 	var newBoard [5][5]string
-	if wNewSquare[0] == bNewSquare[0] && wNewSquare[1] == wNewSquare[1] {
+	if wNewSquare[0] == bNewSquare[0] && wNewSquare[1] == bNewSquare[1] {
 		newBoard = moveToSameSquare(board, wOldSquare, wNewSquare, bOldSquare, bNewSquare)
 	} else {
 		newBoard = moveToDifferentSquares(board, wOldSquare, wNewSquare, bOldSquare, bNewSquare)
@@ -183,8 +244,8 @@ func moveToSameSquare(board [5][5]string, wOldSquare [2]int, wNewSquare [2]int, 
 		newBoard[wNewSquare[0]][wNewSquare[1]] = "w1"
 	}
 	// Pieces are gone from their original squares
-	newBoard[wOldSquare[0]][wOldSquare[1]] = "e"
-	newBoard[bOldSquare[0]][bOldSquare[1]] = "e"
+	newBoard[wOldSquare[0]][wOldSquare[1]] = "ee"
+	newBoard[bOldSquare[0]][bOldSquare[1]] = "ee"
 	return newBoard
 }
 
@@ -193,8 +254,8 @@ func moveToDifferentSquares(board [5][5]string, wOldSquare [2]int, wNewSquare [2
 	newBoard := board
 	whitePieceToMove := getPieceToMove(board, wOldSquare, wNewSquare)
 	blackPieceToMove := getPieceToMove(board, bOldSquare, bNewSquare)
-	newBoard[wOldSquare[0]][wOldSquare[1]] = "e"
-	newBoard[bOldSquare[0]][bOldSquare[1]] = "e"
+	newBoard[wOldSquare[0]][wOldSquare[1]] = "ee"
+	newBoard[bOldSquare[0]][bOldSquare[1]] = "ee"
 	newBoard[wNewSquare[0]][wNewSquare[1]] = whitePieceToMove
 	newBoard[bNewSquare[0]][bNewSquare[1]] = blackPieceToMove
 	return newBoard
