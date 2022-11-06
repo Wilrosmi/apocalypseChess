@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -67,7 +68,7 @@ func createNewBoard() [5][5]string {
 
 // Prints the board to the terminal
 func printBoard(board [5][5]string) {
-	for i := 0; i < 5; i++ {
+	for i := 4; i >= 0; i-- {
 		fmt.Println(board[0][i] + " " + board[1][i] + " " + board[2][i] + " " + board[3][i] + " " + board[4][i])
 	}
 }
@@ -85,7 +86,9 @@ func validateUserInput(input string) bool {
 
 // Changes the users input from its raw form to the int array form we need it in
 func cleanUserInput(input string) [2]int {
-	return [2]int{int(input[0]), int(input[1])}
+	first, _ := strconv.Atoi(string(input[0]))
+	second, _ := strconv.Atoi(string(input[1]))
+	return [2]int{first, second}
 }
 
 func printEndMessage(gameOverCheck string) {
@@ -160,7 +163,7 @@ func checkKnightMove(board [5][5]string, whosTurn string, currentSquare [2]int, 
 // Creates the new board given a valid move for each player
 func resolveMoves(board [5][5]string, wOldSquare [2]int, wNewSquare [2]int, bOldSquare [2]int, bNewSquare [2]int) [5][5]string {
 	var newBoard [5][5]string
-	if wNewSquare[0] == bNewSquare[0] && wNewSquare[1] == wNewSquare[1] {
+	if wNewSquare[0] == bNewSquare[0] && wNewSquare[1] == bNewSquare[1] {
 		newBoard = moveToSameSquare(board, wOldSquare, wNewSquare, bOldSquare, bNewSquare)
 	} else {
 		newBoard = moveToDifferentSquares(board, wOldSquare, wNewSquare, bOldSquare, bNewSquare)
