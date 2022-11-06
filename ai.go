@@ -41,13 +41,17 @@ func getMovesForSquare(board [5][5]string, aiColour string, x int, y int) [][2][
 // Finds the moves for a pawn square
 func getPawnMoves(board [5][5]string, aiColour string, x int, y int) [][2][2]int {
 	moves := make([][2][2]int, 0)
-	if board[x][y+1] == "ee" {
-		moves = append(moves, [2][2]int{{x, y}, {x, y + 1}})
+	forwardOrBack := 1
+	if aiColour == "b" {
+		forwardOrBack *= -1
 	}
-	if x > 0 && string(board[x-1][y+1][0]) != aiColour && string(board[x-1][y+1][0]) != "ee" {
-		moves = append(moves, [2][2]int{{x, y}, {x - 1, y + 1}})
-	} else if x < 4 && string(board[x+1][y+1][0]) != aiColour && string(board[x+1][y+1][0]) != "ee" {
-		moves = append(moves, [2][2]int{{x, y}, {x + 1, y + 1}})
+	if board[x][y+forwardOrBack] == "ee" {
+		moves = append(moves, [2][2]int{{x, y}, {x, y + forwardOrBack}})
+	}
+	if x > 0 && string(board[x-1][y+forwardOrBack][0]) != aiColour && string(board[x-1][y+forwardOrBack][0]) != "ee" {
+		moves = append(moves, [2][2]int{{x, y}, {x - 1, y + forwardOrBack}})
+	} else if x < 4 && string(board[x+1][y+forwardOrBack][0]) != aiColour && string(board[x+1][y+forwardOrBack][0]) != "ee" {
+		moves = append(moves, [2][2]int{{x, y}, {x + 1, y + forwardOrBack}})
 	}
 	return moves
 }

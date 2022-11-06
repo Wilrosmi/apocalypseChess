@@ -8,6 +8,53 @@ import (
 )
 
 func main() {
+	var choice string
+	fmt.Println("Press 1 to play the AI. Press 2 to play locally. Anything else will exit the program")
+	fmt.Scanf("%s", &choice)
+	switch choice {
+	case "1":
+		playAI()
+	case "2":
+		playLocally()
+	default:
+		os.Exit(0)
+	}
+}
+
+// Play against the AI
+func playAI() {
+	moveCounter := 0
+	gameOverCheck := "x"
+	board := createNewBoard()
+	fmt.Println("You are playing the white pieces")
+	for moveCounter < 100 && gameOverCheck == "x" {
+		printBoard(board)
+		var whiteRawOld string
+		var whiteRawNew string
+		var whiteOldMove [2]int
+		var whiteNewMove [2]int
+		fmt.Println("Enter the square of the piece you wish to move: ")
+		fmt.Scanln(&whiteRawOld)
+		fmt.Println("Enter the square you wish to move to: ")
+		fmt.Scanln(&whiteRawNew)
+		if validateUserInput(whiteRawNew) && validateUserInput(whiteRawOld) {
+			whiteNewMove = cleanUserInput(whiteRawNew)
+			whiteOldMove = cleanUserInput(whiteRawOld)
+		} else {
+			gameOverCheck = "b"
+			break
+		}
+		blackOldMove, blackNewMove := aiMove(board, "b")
+		board = resolveMoves(board, whiteOldMove, whiteNewMove, blackOldMove, blackNewMove)
+		gameOverCheck = checkGameOver(board)
+		moveCounter++
+	}
+	printEndMessage(gameOverCheck)
+	os.Exit(0)
+}
+
+// Play with two players inputting moves into the terminal
+func playLocally() {
 	moveCounter := 0
 	gameOverCheck := "x"
 	board := createNewBoard()
@@ -140,9 +187,13 @@ func canPlayerMoveThatPiece(board [5][5]string, whosTurn string, currentSquare [
 // Checks if the proposed move is possible for a pawn
 func checkPawnMove(board [5][5]string, whosTurn string, currentSquare [2]int, newSquare [2]int) bool {
 	pieceOnSquare := string(board[newSquare[0]][newSquare[1]][0])
-	if newSquare[0] == currentSquare[0] && newSquare[1] == currentSquare[1]+1 && pieceOnSquare == "e" {
+	forwardOrBack := 1
+	if whosTurn == "b" {
+		forwardOrBack *= -1
+	}
+	if newSquare[0] == currentSquare[0] && newSquare[1] == currentSquare[1]+forwardOrBack && pieceOnSquare == "e" {
 		return true
-	} else if (newSquare[0] == currentSquare[0]+1 || newSquare[0] == currentSquare[0]-1) && newSquare[1] == currentSquare[1]+1 && (pieceOnSquare != "e" && pieceOnSquare != whosTurn) {
+	} else if (newSquare[0] == currentSquare[0]+1 || newSquare[0] == currentSquare[0]-1) && newSquare[1] == currentSquare[1]+forwardOrBack && (pieceOnSquare != "e" && pieceOnSquare != whosTurn) {
 		return true
 	} else {
 		return false
