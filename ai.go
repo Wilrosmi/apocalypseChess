@@ -1,8 +1,14 @@
 package main
 
+import (
+	"math/rand"
+)
+
 // Picks a move
 func aiMove(board [5][5]string, aiColour string) ([2]int, [2]int) {
 	possibleMoves := moveFinder(board, aiColour)
+	moveNumber := rand.Intn(len(possibleMoves))
+	return possibleMoves[moveNumber][0], possibleMoves[moveNumber][1]
 }
 
 // Finds all the legal moves for the ai
@@ -14,6 +20,7 @@ func moveFinder(board [5][5]string, aiColour string) [][2][2]int {
 			moves = appendMoves(moves, legalMoves)
 		}
 	}
+	return moves
 }
 
 // Gets the legal moves for a player for a given square
@@ -32,22 +39,40 @@ func getMovesForSquare(board [5][5]string, aiColour string, x int, y int) [][2][
 }
 
 // Finds the moves for a pawn square
-func findPawnMoves(board [5][5]string, aiColour string, x int, y int) [][2][2]int {
+func getPawnMoves(board [5][5]string, aiColour string, x int, y int) [][2][2]int {
 	moves := make([][2][2]int, 0)
 	if board[x][y+1] == "ee" {
-		moves = append(moves, [2][2]int{[2]int{x, y}, [2]int{x, y + 1}})
+		moves = append(moves, [2][2]int{{x, y}, {x, y + 1}})
 	}
 	if x > 0 && string(board[x-1][y+1][0]) != aiColour && string(board[x-1][y+1][0]) != "ee" {
-		moves = append(moves, [2][2]int{[2]int{x, y}, [2]int{x - 1, y + 1}})
+		moves = append(moves, [2][2]int{{x, y}, {x - 1, y + 1}})
 	} else if x < 4 && string(board[x+1][y+1][0]) != aiColour && string(board[x+1][y+1][0]) != "ee" {
-		moves = append(moves, [2][2]int{[2]int{x, y}, [2]int{x + 1, y + 1}})
+		moves = append(moves, [2][2]int{{x, y}, {x + 1, y + 1}})
 	}
 	return moves
 }
 
+// Finds the moves for a knight square
 func getKnightMoves(board [5][5]string, aiColour string, x int, y int) [][2][2]int {
 	moves := make([][2][2]int, 0)
-
+	if x+2 <= 4 && y+1 <= 4 && string(board[x+2][y+1][0]) != aiColour {
+		moves = append(moves, [2][2]int{{x, y}, {x + 2, y + 1}})
+	} else if x+2 <= 4 && y-1 >= 0 && board[x+2][y-1] != aiColour {
+		moves = append(moves, [2][2]int{{x, y}, {x + 2, y - 1}})
+	} else if x-2 >= 0 && y+1 <= 4 && string(board[x-2][y+1][0]) != aiColour {
+		moves = append(moves, [2][2]int{{x, y}, {x - 2, y + 1}})
+	} else if x-2 >= 0 && y-1 >= 0 && string(board[x-2][y-1][0]) != aiColour {
+		moves = append(moves, [2][2]int{{x, y}, {x - 2, y + 1}})
+	} else if x+1 <= 4 && y+2 <= 4 && string(board[x+1][y+2][0]) != aiColour {
+		moves = append(moves, [2][2]int{{x, y}, {x + 1, y + 2}})
+	} else if x+1 <= 4 && y-2 >= 0 && string(board[x+1][y-2][0]) != aiColour {
+		moves = append(moves, [2][2]int{{x, y}, {x + 1, y - 2}})
+	} else if x-1 >= 0 && y-2 >= 0 && string(board[x-1][y-2][0]) != aiColour {
+		moves = append(moves, [2][2]int{{x, y}, {x - 1, y - 2}})
+	} else if x-1 >= 0 && y+2 <= 4 && string(board[x-1][y+2][0]) != aiColour {
+		moves = append(moves, [2][2]int{{x, y}, {x - 1, y + 2}})
+	}
+	return moves
 }
 
 // Appends a list of possible moves for one square to the overall list of moves
