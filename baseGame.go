@@ -1,5 +1,9 @@
 package main
 
+import {
+	"strings"
+}
+
 func main() {
 }
 
@@ -11,15 +15,26 @@ func createNewBoard() [5][5]string {
 	return board
 }
 
+func validateUserInput(input string) bool {
+	validNums := "01234"
+	if len(input) != 2 {
+		return false
+	} else if !strings.Contains(validNums, string(input[0])) || !strings.Contains(validNums, string(input[1])) {
+		return false
+	}  
+	return true
+} 
+
+func cleanUserInput(input string) [2]int {
+	return [2]int{int(input[0]), int(input[1])}
+}
+
 // Checks if a proposed move is valid or not
 func checkValidMove(board [5][5]string, whosTurn string, currentSquare [2]int, newSquare [2]int) bool {
 	if !canPlayerMoveThatPiece(board, whosTurn, currentSquare) {
 		return false
 	} else if currentSquare == newSquare {
 		// Player needs to select a new square to move to
-		return false
-	} else if newSquare[0] < 0 || newSquare[0] > 4 || newSquare[1] < 0 || newSquare[1] > 4 {
-		// Selected square off the board
 		return false
 	}
 	var validPieceMove bool
