@@ -1,8 +1,9 @@
 package main
 
 import (
-	"strings", 
 	"fmt"
+	"os"
+	"strings"
 )
 
 func main() {
@@ -31,27 +32,29 @@ func main() {
 			whiteNewMove = cleanUserInput(whiteRawNew)
 			whiteOldMove = cleanUserInput(whiteRawOld)
 		} else {
-			gameOverCheck := "b"
+			gameOverCheck = "b"
 			break
 		}
 		if validateUserInput(blackRawNew) && validateUserInput(blackRawOld) {
 			blackNewMove = cleanUserInput(blackRawNew)
 			blackOldMove = cleanUserInput(blackRawOld)
 		} else {
-			gameOverCheck := "w"
+			gameOverCheck = "w"
 			break
-		} 
+		}
 		if !checkValidMove(board, "w", whiteOldMove, whiteNewMove) {
-			gameOverCheck := "b"
+			gameOverCheck = "b"
 			break
 		} else if !checkValidMove(board, "b", blackOldMove, blackNewMove) {
-			gameOverCheck := "w"
+			gameOverCheck = "w"
 			break
 		}
 		board = resolveMoves(board, whiteOldMove, whiteNewMove, blackOldMove, blackNewMove)
-		gameOverCheck = gameOverCheck(board)
+		gameOverCheck = checkGameOver(board)
 		moveCounter++
-	} 
+	}
+	printEndMessage(gameOverCheck)
+	os.Exit(0)
 }
 
 // Creates a new starting board state
@@ -64,8 +67,8 @@ func createNewBoard() [5][5]string {
 
 // Prints the board to the terminal
 func printBoard(board [5][5]string) {
-	for i : 0; i < 5; i++ {
-		fmt.Println(board[0][i] + " " + boaboard[1][i] + " " + board[2][i] + " " + board[3][i] + " " + board[4][i])
+	for i := 0; i < 5; i++ {
+		fmt.Println(board[0][i] + " " + board[1][i] + " " + board[2][i] + " " + board[3][i] + " " + board[4][i])
 	}
 }
 
@@ -83,6 +86,17 @@ func validateUserInput(input string) bool {
 // Changes the users input from its raw form to the int array form we need it in
 func cleanUserInput(input string) [2]int {
 	return [2]int{int(input[0]), int(input[1])}
+}
+
+func printEndMessage(gameOverCheck string) {
+	switch gameOverCheck {
+	case "w":
+		fmt.Println("White Wins")
+	case "b":
+		fmt.Println("Black Wins")
+	case "d":
+		fmt.Println("Draw")
+	}
 }
 
 // Checks if a proposed move is valid or not
