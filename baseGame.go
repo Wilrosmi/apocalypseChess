@@ -60,16 +60,18 @@ func main() {
 
 // Creates a new starting board state
 func createNewBoard() [5][5]string {
-	firstAndLastColumns := [5]string{"w1", "w0", "e", "b0", "b1"}
-	middleColumns := [5]string{"w0", "e", "e", "e", "b0"}
+	firstAndLastColumns := [5]string{"w1", "w0", "ee", "b0", "b1"}
+	middleColumns := [5]string{"w0", "ee", "ee", "ee", "b0"}
 	board := [5][5]string{firstAndLastColumns, middleColumns, middleColumns, middleColumns, firstAndLastColumns}
 	return board
 }
 
 // Prints the board to the terminal
 func printBoard(board [5][5]string) {
+	fmt.Println("----------------------")
 	for i := 4; i >= 0; i-- {
-		fmt.Println(board[0][i] + " " + board[1][i] + " " + board[2][i] + " " + board[3][i] + " " + board[4][i])
+		fmt.Println("||" + board[0][i] + "||" + board[1][i] + "||" + board[2][i] + "||" + board[3][i] + "||" + board[4][i] + "||")
+		fmt.Println("----------------------")
 	}
 }
 
@@ -186,8 +188,8 @@ func moveToSameSquare(board [5][5]string, wOldSquare [2]int, wNewSquare [2]int, 
 		newBoard[wNewSquare[0]][wNewSquare[1]] = "w1"
 	}
 	// Pieces are gone from their original squares
-	newBoard[wOldSquare[0]][wOldSquare[1]] = "e"
-	newBoard[bOldSquare[0]][bOldSquare[1]] = "e"
+	newBoard[wOldSquare[0]][wOldSquare[1]] = "ee"
+	newBoard[bOldSquare[0]][bOldSquare[1]] = "ee"
 	return newBoard
 }
 
@@ -196,8 +198,8 @@ func moveToDifferentSquares(board [5][5]string, wOldSquare [2]int, wNewSquare [2
 	newBoard := board
 	whitePieceToMove := getPieceToMove(board, wOldSquare, wNewSquare)
 	blackPieceToMove := getPieceToMove(board, bOldSquare, bNewSquare)
-	newBoard[wOldSquare[0]][wOldSquare[1]] = "e"
-	newBoard[bOldSquare[0]][bOldSquare[1]] = "e"
+	newBoard[wOldSquare[0]][wOldSquare[1]] = "ee"
+	newBoard[bOldSquare[0]][bOldSquare[1]] = "ee"
 	newBoard[wNewSquare[0]][wNewSquare[1]] = whitePieceToMove
 	newBoard[bNewSquare[0]][bNewSquare[1]] = blackPieceToMove
 	return newBoard
